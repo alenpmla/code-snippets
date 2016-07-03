@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset=utf-8>
+<title>Realtime message Board</title>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
+</head>
+<body>
+
+
+
+<div class="container">
+
+	<h3 class="text-center">Realtime message Board</h3>
+	<div class="jumbotron">
+	<h2 id="currentmsglabel" class="text-center"></h2>
+	</div>
+	
+	<div class="form-group">
+		<input type="text" id="textnewmessage" class="form-control" placeholder="Message" >
+		
+		<input type="text" id="textchannelname" class="form-control" placeholder="Channel Name"  required="true">
+		<input type="text" id="textchannelurl" class="form-control" placeholder="Channel Streaming URL" required="true">
+		<input type="text" id="textchannelimgurl" class="form-control" placeholder="Channel Image URL" required="true">
+		
+		<button id="btnupdatemsg" class= "btn btn-primary">Add Data</button>
+		
+	<ul class="chatbox">
+    <!-- arrays are fully sortable and filterable -->
+    <li ng-repeat="message in messages | orderBy:orderBy | filter:searchText">
+      {{ user_items.channel_img_url }}: {{ user_items.channel_name}}
+
+      <!-- delete a message using $remove -->
+      <a href="" ng-click="user_items.$remove(message)">X</a>
+    </li>
+  </ul>
+  
+	</div>	
+</div>
+
+	<script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+<script src="https://cdn.firebase.com/libs/angularfire/1.2.0/angularfire.min.js"></script>
+	<script>
+	
+	var app = angular.module("sampleApp", ["firebase"]);
+// inject $firebaseArray into our controller
+app.controller("chatbox", ["$scope", $firebaseArray",
+  function($scope, $firebaseArray) {
+    var messagesRef = new Firebase("https://garshom-tv.firebaseio.com/user_items");
+    // download the data from a Firebase reference into a (pseudo read-only) array
+    // all server changes are applied in realtime
+    $scope.messages = $firebaseArray(messagesRef);
+    // create a query for the most recent 25 messages on the server
+    // the $firebaseArray service properly handles database queries as well
+    $scope.filteredMessages = $firebaseArray(messagesRef);
+  }
+]);
+	
+		var lblcurrentmsg=document.getElementById('currentmsglabel'),
+		textnewmessage=document.getElementById('textnewmessage'),
+		textchannelname=document.getElementById('textnewmessage'),
+		textchannelurl=document.getElementById('textchannelurl'),
+		textchannelimgurl=document.getElementById('textchannelimgurl'),
+			btnupdatemsg=document.getElementById('btnupdatemsg');
+			
+			var rootref = new Firebase("https://garshom-tv.firebaseio.com/"),
+			currentmsgref=rootref.child("message");
+			
+			btnupdatemsg.addEventListener('click',function(){
+			currentmsgref.set(textnewmessage.value)
+			
+				var usersRef = rootref.child("user_items").push();
+			var mssg=textnewmessage.value;	
+	var postData = {
+    channel_name: textchannelname.value,
+    channel_url: textchannelurl.value,
+	channel_img_url: textchannelimgurl.value
+  };
+textnewmessage.value='';			
+usersRef.set(postData);
+			});
+			
+			currentmsgref.on('value',function(snapshot){
+			lblcurrentmsg.innerText = snapshot.val();
+			});
+			
+	
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+ 
+		
+	</script>
+	
+	
+	
+	
+	
+   
+
+</div>
+
+
+</body>
+</html>
